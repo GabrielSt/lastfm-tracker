@@ -18,7 +18,7 @@ export function SyncButton({ onSyncComplete }: SyncButtonProps) {
         Sync automático via GitHub Actions
         <br />
         <a
-          href="https://github.com"
+          href={import.meta.env.VITE_GITHUB_ACTIONS_URL ?? 'https://github.com'}
           target="_blank"
           rel="noopener noreferrer"
           className="text-lastfm-red hover:underline"
