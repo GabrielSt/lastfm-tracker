@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { useRanking } from '@/hooks/useRanking';
-import { SyncButton } from '@/components/SyncButton';
 import { TracksTable } from '@/components/RankingTable';
 import { PeriodSelector } from '@/components/PeriodSelector';
 
 export default function Tracks() {
-  const { data, loading, error, refetch, changeParams, params, snapshots } = useRanking();
+  const { data, loading, error, changeParams, params, snapshots } = useRanking();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'up' | 'down' | 'new' | 'active'>('all');
 
@@ -26,17 +25,15 @@ export default function Tracks() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Músicas</h1>
-          <p className="text-lastfm-muted text-sm">
-            {filtered.length} de {tracks.length} músicas
-          </p>
-        </div>
-        <SyncButton onSyncComplete={refetch} />
+      <div>
+        <h1 className="text-2xl font-bold text-white mb-1">Tracks</h1>
+        <p className="text-lastfm-muted text-sm">
+          {filtered.length !== tracks.length
+            ? `${filtered.length} of ${tracks.length} tracks`
+            : `${tracks.length} tracks`}
+        </p>
       </div>
 
-      {/* Seletor de período */}
       {snapshots.length > 1 && (
         <div className="bg-lastfm-card border border-lastfm-border rounded-xl p-4">
           <PeriodSelector
@@ -48,21 +45,21 @@ export default function Tracks() {
         </div>
       )}
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-2">
         <input
           type="text"
-          placeholder="Buscar música ou artista..."
+          placeholder="Search track or artist..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="bg-lastfm-card border border-lastfm-border rounded-lg px-3 py-1.5 text-white placeholder-lastfm-muted focus:outline-none focus:border-lastfm-red text-sm"
+          className="bg-lastfm-card border border-lastfm-border rounded-lg px-3 py-1.5 text-white placeholder-lastfm-muted focus:outline-none focus:border-lastfm-red text-sm min-w-48"
         />
         <div className="flex gap-1 flex-wrap">
           {([
-            { value: 'all', label: 'Todos' },
-            { value: 'active', label: '● Ouvindo' },
-            { value: 'up', label: '↑ Subindo' },
-            { value: 'down', label: '↓ Descendo' },
-            { value: 'new', label: '★ Novos' },
+            { value: 'all', label: 'All' },
+            { value: 'active', label: '● Listening' },
+            { value: 'up', label: '↑ Rising' },
+            { value: 'down', label: '↓ Falling' },
+            { value: 'new', label: '★ New' },
           ] as const).map(f => (
             <button
               key={f.value}
@@ -79,9 +76,9 @@ export default function Tracks() {
         </div>
       </div>
 
-      {loading && <div className="text-lastfm-muted text-center py-20">Carregando...</div>}
+      {loading && <div className="text-lastfm-muted text-center py-20">Loading...</div>}
       {error && <div className="text-rose-400 text-center py-20">{error}</div>}
-      {!loading && !error && <TracksTable tracks={filtered} />}
+      {!loading && !error && <TracksTable tracks={filtered} paginate />}
     </div>
   );
 }

@@ -3,7 +3,6 @@ import Layout from '@/components/Layout';
 import Dashboard from '@/pages/Dashboard';
 import Artists from '@/pages/Artists';
 import Tracks from '@/pages/Tracks';
-import Settings from '@/pages/Settings';
 
 const router = createBrowserRouter([
   {
@@ -13,7 +12,6 @@ const router = createBrowserRouter([
       { index: true, element: <Dashboard /> },
       { path: 'artists', element: <Artists /> },
       { path: 'tracks', element: <Tracks /> },
-      { path: 'settings', element: <Settings /> },
     ],
   },
 ]);

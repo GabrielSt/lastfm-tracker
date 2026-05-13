@@ -1,122 +1,120 @@
 # Last.fm Tracker
 
-App que sincroniza seus scrobbles do Last.fm diariamente e exibe rankings com evolução de posição ao longo do tempo.
+A personal Last.fm ranking tracker that shows your top artists and tracks with position evolution over time.
 
-## Arquitetura
+Data is synced daily via GitHub Actions and served as static JSON files — no backend in production.
+
+## How it works
 
 ```
-GitHub Actions (cron diário)
-  → busca dados da API do Last.fm
-  → salva snapshots em frontend/public/data/
-  → commit automático no repositório
-
-Vercel (deploy automático)
-  → detecta o commit do GitHub Actions
-  → publica o frontend estático
-  → frontend lê os JSONs de /data/ diretamente
+GitHub Actions (daily cron)
+  → fetches Last.fm API
+  → saves snapshot JSON to frontend/public/data/snapshots/
+  → commits to repo
+  → Vercel detects commit → redeploys frontend
 ```
 
-**Sem backend rodando em produção.** O sync é feito pelo GitHub Actions, os dados ficam no próprio repositório como arquivos JSON estáticos.
+The frontend reads those static JSON files directly, so there's no server required in production.
 
----
+## Stack
 
-## Setup inicial
+- **Frontend:** React + Vite + TypeScript + Tailwind CSS + Recharts
+- **Sync script:** Node.js + tsx (runs in GitHub Actions)
+- **Dev backend:** Express (local only, for testing without Actions)
+- **Hosting:** Vercel (frontend) + GitHub Actions (daily sync)
 
-### 1. Fork / clone este repositório no GitHub
+## Features
+
+- Top artists and tracks with all-time scrobble counts
+- Position trend indicators (rising ↑, falling ↓, new ★, stable)
+- Active listening indicator (pulsing dot when scrobbled in the comparison period)
+- Period comparison: previous snapshot / 7d / 30d / 90d / 180d / 365d / all-time / specific date
+- Position history charts per artist/track (click any row to expand)
+- Pagination (50 items per page)
+- Search and filter by trend or listening activity
+
+## Setup
+
+### 1. Fork or clone this repo
 
 ```bash
-git clone https://github.com/SEU_USER/lastfm-tracker
+git clone https://github.com/YOUR_USERNAME/lastfm-tracker
 cd lastfm-tracker
 ```
 
-### 2. Crie sua API key gratuita do Last.fm
+### 2. Get a Last.fm API key
 
-1. Acesse https://www.last.fm/api/account/create
-2. Preencha qualquer nome em "Application name" (ex: `meu tracker`)
-3. Copie a **API key** (não o Shared Secret)
+1. Go to [last.fm/api/account/create](https://www.last.fm/api/account/create)
+2. Fill in any application name (e.g. "my tracker")
+3. Copy the **API key** (not the Shared Secret)
 
-### 3. Configure os secrets no GitHub
+### 3. Configure GitHub secrets and variables
 
-No repositório → **Settings → Secrets and variables → Actions → New repository secret**
+In your repo: **Settings → Secrets and variables → Actions**
 
-| Secret | Valor |
-|--------|-------|
-| `LASTFM_USERNAME` | Seu username do Last.fm (ex: `bielnn`) |
-| `LASTFM_API_KEY` | A API key copiada no passo 2 |
+**Secrets:**
+| Name | Value |
+|---|---|
+| `LASTFM_USERNAME` | Your Last.fm username |
+| `LASTFM_API_KEY` | Your Last.fm API key |
 
-Opcional — em **Variables** (não Secrets):
+**Variables (optional):**
+| Name | Value |
+|---|---|
+| `MAX_PAGES` | Max pages to fetch per sync (`0` = no limit, 1000 items/page) |
 
-| Variable | Valor padrão | Descrição |
-|----------|-------------|-----------|
-| `MAX_PAGES` | `0` | Limite de páginas por sync (0 = tudo) |
+### 4. Allow Actions to write to the repo
 
-### 4. Rode o primeiro sync manualmente
+**Settings → Actions → General → Workflow permissions** → select **Read and write permissions**
 
-No GitHub → **Actions → Daily Last.fm Sync → Run workflow**
+### 5. Run the first sync manually
 
-Isso vai buscar seus dados e fazer o primeiro commit com os snapshots.
+**Actions tab → "Daily Last.fm Sync" → Run workflow**
 
-### 5. Deploy no Vercel
+This will generate the first snapshot and commit it to `frontend/public/data/snapshots/`.
 
-1. Acesse https://vercel.com e crie conta (gratuita)
-2. **Add New Project** → importe seu repositório do GitHub
-3. Configure:
-   - **Framework Preset:** Vite
-   - **Root Directory:** `frontend`
-   - **Build Command:** `npm run build`
-   - **Output Directory:** `dist`
+### 6. Deploy to Vercel
+
+1. Go to [vercel.com](https://vercel.com) → Add New Project → import this repo
+2. Set **Root Directory** to `frontend`
+3. Add environment variable:
+   - `VITE_GITHUB_ACTIONS_URL` = `https://github.com/YOUR_USERNAME/lastfm-tracker/actions`
 4. Deploy
 
-A partir daí, toda vez que o GitHub Actions fizer commit (diariamente às 6h UTC), o Vercel faz deploy automático.
+After that, every daily sync commit will trigger an automatic Vercel redeploy.
 
----
-
-## Desenvolvimento local
+## Local development
 
 ```bash
+# Install all dependencies
 npm install
+
+# Copy and configure backend settings
+cp backend/data/config.example.json backend/data/config.json
+# Edit config.json with your username and API key
+
+# Start dev server (frontend + backend)
 npm run dev
 ```
 
-- Frontend: http://localhost:5173
-- Backend local: http://localhost:3001
+The dev mode runs a local Express backend so you can sync and test without GitHub Actions.
 
-Em desenvolvimento, o frontend detecta automaticamente se o backend Express está rodando e usa ele. Se não estiver, lê os JSONs de `frontend/public/data/`.
+## Data structure
 
-Configure o backend local em http://localhost:5173/settings (username + API key).
-
----
-
-## Sync manual em produção
-
-No GitHub → **Actions → Daily Last.fm Sync → Run workflow**
-
-Ou via GitHub CLI:
-```bash
-gh workflow run sync.yml
-```
-
----
-
-## Estrutura dos dados
+Snapshots are saved as:
 
 ```
 frontend/public/data/
-  config.json              # { username, lastSync }
+  config.json                        ← public config (username, last sync date)
   snapshots/
-    index.json             # { dates: ["2026-05-13", ...] }
-    2026-05-13.json        # snapshot do dia
-    2026-05-14.json
+    index.json                       ← list of available snapshot dates
+    2024-01-15.json                  ← daily snapshot
+    2024-01-16.json
     ...
 ```
 
-Cada snapshot tem:
-```json
-{
-  "date": "2026-05-13",
-  "username": "bielnn",
-  "syncedAt": "2026-05-13T06:00:00Z",
-  "artists": [{ "rank": 1, "name": "...", "scrobbles": 1234 }],
-  "tracks":  [{ "rank": 1, "name": "...", "artist": "...", "scrobbles": 89 }]
-}
-```
+Each snapshot contains the full ranked list of artists and tracks at the time of sync.
+
+## Sync schedule
+
+The GitHub Actions workflow runs daily at **06:00 UTC** (03:00 BRT). You can also trigger it manually from the Actions tab at any time.
