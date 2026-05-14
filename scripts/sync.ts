@@ -174,7 +174,7 @@ function updatePublicConfig() {
 function listSnapshotDates(): string[] {
   if (!fs.existsSync(SNAPSHOTS_DIR)) return [];
   return fs.readdirSync(SNAPSHOTS_DIR)
-    .filter(f => f.endsWith('.json'))
+    .filter(f => f.endsWith('.json') && f !== 'index.json' && f !== '.gitkeep')
     .map(f => f.replace('.json', ''))
     .sort();
 }

@@ -29,14 +29,14 @@ export function useRanking() {
       const ranking = await getRanking(p);
       setData(ranking);
     } catch (err: unknown) {
-      const status =
-        err && typeof err === 'object' && 'response' in err
-          ? (err as { response?: { status?: number } }).response?.status
-          : null;
-      if (status === 404) {
-        setError('Nenhum dado encontrado. Faça uma sincronização primeiro.');
+      const msg = err instanceof Error ? err.message : String(err);
+      const is404 = msg.includes('404') || msg.includes('sincronização') || msg.includes('No data');
+      if (is404) {
+        setError('No data yet. Trigger a sync from the GitHub Actions tab.');
       } else {
-        setError('Erro ao carregar dados. O backend está rodando?');
+        // Em produção não há backend — não mencionar isso na mensagem de erro
+        const isDev = import.meta.env.DEV;
+        setError(isDev ? `Error loading data. Is the backend running? (${msg})` : `Error loading data: ${msg}`);
       }
     } finally {
       setLoading(false);

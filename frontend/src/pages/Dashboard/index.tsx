@@ -39,11 +39,6 @@ export default function Dashboard() {
         <div className="bg-rose-400/10 border border-rose-400/30 rounded-xl p-6 text-center">
           <div className="text-rose-400 text-lg mb-2">⚠</div>
           <p className="text-rose-300">{error}</p>
-          {error.includes('backend') && (
-            <p className="text-lastfm-muted text-sm mt-2">
-              Run <code className="bg-black/30 px-1 rounded">npm run dev</code> at the project root.
-            </p>
-          )}
         </div>
       )}
 
