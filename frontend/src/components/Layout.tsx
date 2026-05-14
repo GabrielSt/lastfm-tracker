@@ -5,6 +5,7 @@ const navItems = [
   { to: '/', label: 'Dashboard', icon: '◈' },
   { to: '/artists', label: 'Artists', icon: '♪' },
   { to: '/tracks', label: 'Tracks', icon: '♫' },
+  { to: '/reports', label: 'Reports', icon: '◉' },
 ];
 
 export default function Layout() {
