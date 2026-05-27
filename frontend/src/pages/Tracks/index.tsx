@@ -32,7 +32,7 @@ export default function Tracks() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1">Tracks</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">Tracks</h1>
         <p className="text-lastfm-muted text-sm">
           {tab === 'all'
             ? filtered.length !== tracks.length

@@ -45,21 +45,23 @@ export function PeriodSelector({ params, snapshots, onChange, compareDate }: Per
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-1 flex-wrap">
-        <span className="text-lastfm-muted text-xs mr-1 whitespace-nowrap">Comparar com:</span>
-        {PERIOD_PRESETS.map(preset => (
-          <button
-            key={preset.value}
-            onClick={() => handlePreset(preset.value)}
-            className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
-              activePeriod === preset.value
-                ? 'bg-lastfm-red text-white'
-                : 'bg-lastfm-card border border-lastfm-border text-lastfm-muted hover:text-white'
-            }`}
-          >
-            {preset.label}
-          </button>
-        ))}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+        <span className="text-lastfm-muted text-xs whitespace-nowrap">Comparar com:</span>
+        <div className="flex flex-wrap gap-1">
+          {PERIOD_PRESETS.map(preset => (
+            <button
+              key={preset.value}
+              onClick={() => handlePreset(preset.value)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
+                activePeriod === preset.value
+                  ? 'bg-lastfm-red text-white'
+                  : 'bg-lastfm-card border border-lastfm-border text-lastfm-muted hover:text-white'
+              }`}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Seletor de data customizada */}

@@ -102,7 +102,8 @@ export function ArtistsTable({ artists, paginate = false }: ArtistsTableProps) {
 
   return (
     <div className="rounded-xl overflow-hidden border border-lastfm-border">
-      <table className="w-full text-sm">
+      {/* ── Desktop table (md+) ── */}
+      <table className="hidden md:table w-full text-sm">
         <thead>
           <tr className="bg-lastfm-card/80 text-lastfm-muted text-xs uppercase tracking-wider">
             <th className="py-3 px-4 text-right w-12 font-medium">#</th>
@@ -168,6 +169,65 @@ export function ArtistsTable({ artists, paginate = false }: ArtistsTableProps) {
           ))}
         </tbody>
       </table>
+
+      {/* ── Mobile cards (< md) ── */}
+      <div className="md:hidden divide-y divide-lastfm-border">
+        {paged.map(artist => (
+          <div key={artist.name}>
+            <div
+              className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-white/[0.03] transition-colors"
+              onClick={() => setExpanded(expanded === artist.name ? null : artist.name)}
+            >
+              {/* Rank */}
+              <span className="font-mono text-xs text-lastfm-muted tabular-nums w-7 text-right shrink-0">
+                {artist.rank}
+              </span>
+
+              {/* Name + sub-info */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <ActiveDot scrobbles={artist.newScrobbles ?? 0} />
+                  <a
+                    href={artist.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-white hover:text-lastfm-red transition-colors truncate text-sm"
+                    onClick={e => e.stopPropagation()}
+                    title={artist.name}
+                  >
+                    {artist.name}
+                  </a>
+                </div>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="font-mono text-xs text-lastfm-muted tabular-nums">
+                    {artist.scrobbles.toLocaleString()}
+                  </span>
+                  {(artist.newScrobbles ?? 0) > 0 && (
+                    <span className="font-mono text-xs text-emerald-400 tabular-nums">
+                      +{artist.newScrobbles!.toLocaleString()}
+                    </span>
+                  )}
+                  {artist.previousRank !== undefined && artist.previousRank !== artist.rank && (
+                    <span className="text-xs text-lastfm-muted">was #{artist.previousRank}</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Trend */}
+              <div className="shrink-0">
+                <TrendBadge trend={artist.trend} delta={artist.delta} />
+              </div>
+            </div>
+
+            {expanded === artist.name && (
+              <div className="border-t border-lastfm-border bg-lastfm-dark/40 px-4 py-4">
+                <TrendChart name={artist.name} type="artist" />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
       {paginate && (
         <Pagination
           page={page}
@@ -201,7 +261,8 @@ export function TracksTable({ tracks, paginate = false }: TracksTableProps) {
 
   return (
     <div className="rounded-xl overflow-hidden border border-lastfm-border">
-      <table className="w-full text-sm table-fixed">
+      {/* ── Desktop table (md+) ── */}
+      <table className="hidden md:table w-full text-sm table-fixed">
         <thead>
           <tr className="bg-lastfm-card/80 text-lastfm-muted text-xs uppercase tracking-wider">
             <th className="py-3 px-4 text-right w-12 font-medium">#</th>
@@ -279,6 +340,71 @@ export function TracksTable({ tracks, paginate = false }: TracksTableProps) {
           })}
         </tbody>
       </table>
+
+      {/* ── Mobile cards (< md) ── */}
+      <div className="md:hidden divide-y divide-lastfm-border">
+        {paged.map(track => {
+          const key = `${track.artist}::${track.name}`;
+          return (
+            <div key={key}>
+              <div
+                className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-white/[0.03] transition-colors"
+                onClick={() => setExpanded(expanded === key ? null : key)}
+              >
+                {/* Rank */}
+                <span className="font-mono text-xs text-lastfm-muted tabular-nums w-7 text-right shrink-0">
+                  {track.rank}
+                </span>
+
+                {/* Track + artist + sub-info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <ActiveDot scrobbles={track.newScrobbles ?? 0} />
+                    <a
+                      href={track.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-white hover:text-lastfm-red transition-colors truncate text-sm"
+                      onClick={e => e.stopPropagation()}
+                      title={track.name}
+                    >
+                      {track.name}
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-xs text-lastfm-muted truncate">{track.artist}</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="font-mono text-xs text-lastfm-muted tabular-nums">
+                      {track.scrobbles.toLocaleString()}
+                    </span>
+                    {(track.newScrobbles ?? 0) > 0 && (
+                      <span className="font-mono text-xs text-emerald-400 tabular-nums">
+                        +{track.newScrobbles!.toLocaleString()}
+                      </span>
+                    )}
+                    {track.previousRank !== undefined && track.previousRank !== track.rank && (
+                      <span className="text-xs text-lastfm-muted">was #{track.previousRank}</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Trend */}
+                <div className="shrink-0">
+                  <TrendBadge trend={track.trend} delta={track.delta} />
+                </div>
+              </div>
+
+              {expanded === key && (
+                <div className="border-t border-lastfm-border bg-lastfm-dark/40 px-4 py-4">
+                  <TrendChart name={track.name} artist={track.artist} type="track" />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
       {paginate && (
         <Pagination
           page={page}

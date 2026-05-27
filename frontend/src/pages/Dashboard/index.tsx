@@ -12,7 +12,7 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Dashboard</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">Dashboard</h1>
           {data && (
             <p className="text-lastfm-muted text-sm">
               @{data.current.username} · synced{' '}
