@@ -1,9 +1,9 @@
-name: Daily Last.fm Sync
+name: Monthly Last.fm Sync
 
 on:
-  # Roda todo dia às 6h UTC (3h BRT)
+  # Roda no dia 1 de cada mês às 6h UTC (3h BRT)
   schedule:
-    - cron: '0 6 * * *'
+    - cron: '0 6 1 * *'
 
   # Permite disparar manualmente pela interface do GitHub
   workflow_dispatch:
@@ -42,5 +42,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add frontend/public/data/
           # Só commita se houver mudanças
-          git diff --cached --quiet || git commit -m "sync: daily Last.fm data $(date -u +%Y-%m-%d)"
+          git diff --cached --quiet || git commit -m "sync: monthly Last.fm data $(date -u +%Y-%m-%d)"
           git push
